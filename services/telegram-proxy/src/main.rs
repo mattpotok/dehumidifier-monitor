@@ -20,7 +20,6 @@ struct AppState {
 #[derive(Debug, Deserialize)]
 struct EventRequest {
     what: String,
-    when: String,
     who: String,
 
     #[serde(rename = "where")]
@@ -59,9 +58,10 @@ async fn main() {
 async fn events(State(state): State<AppState>, Json(event): Json<EventRequest>) -> StatusCode {
     tracing::info!(?event, "received /events request");
 
+    let when = chrono::Local::now().format("%b %-d, %-I:%M %p %Z");
     let text = format!(
         "{} - {}: {} in {}",
-        event.when, event.who, event.what, event.where_
+        when, event.who, event.what, event.where_
     );
 
     match send_telegram_message(
